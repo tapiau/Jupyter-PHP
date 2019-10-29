@@ -1,0 +1,12 @@
+{
+  "axes": [
+    {
+      "orient": "bottom",
+      "scale": "xscale"
+    },
+    {
+      "orient": "left",
+      "scale": "yscale"
+    }
+  ]
+}

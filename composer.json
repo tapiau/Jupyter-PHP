@@ -4,7 +4,7 @@
     "type": "project",
     "license": "MIT",
     "require": {
-        "php": ">=7.0.0",
+        "php": ">=7.4.0",
         "ext-zmq": "*",
         "composer/composer": "^1.5",
         "monolog/monolog": "^1.23",

@@ -17,8 +17,10 @@ class Table
     }
     public function __invoke($array)
     {
-		$htmlData = "<table border='1'>".
-			"<tr>".join('',array_map(function($item){return "<th>{$item}</th>";},array_keys(reset($array))))."</tr>"
+		$htmlData =
+			"<table>".
+			"<thead></thead><tr>".join('',array_map(function($item){return "<th>{$item}</th>";},array_keys(reset($array))))."</tr></thead>"
+			."<tbody>"
 			.join(
 				'',
 				array_map(
@@ -41,6 +43,7 @@ class Table
 					$array
 				)
 			)
+			."</tbody>"
 			."</table>"
 		;
     	
