@@ -12,6 +12,7 @@
 namespace JupyterPHP\Actions;
 
 use JupyterPHP\JupyterBroker;
+use JupyterPHP\zPHP;
 use Psy\Exception\BreakException;
 use Psy\Exception\ThrowUpException;
 use Psy\ExecutionLoop\Loop;
@@ -20,7 +21,7 @@ use React\ZMQ\SocketWrapper;
 
 final class ExecuteAction implements Action
 {
-    /** @var \JupyterPHP\JupyterBroker */
+    /** @var JupyterBroker */
     private $broker;
 
     /** @var SocketWrapper */
@@ -44,17 +45,22 @@ final class ExecuteAction implements Action
     /** @var int */
     private $execCount = 0;
 
+    /** @var zPHP */
+    private $zPHP;
+
 
     public function __construct(
         JupyterBroker $broker,
         SocketWrapper $iopubSocket,
         SocketWrapper $shellSocket,
-        Shell $shellSoul
+        Shell $shellSoul,
+        zPHP $zPHP
     ) {
         $this->broker = $broker;
         $this->iopubSocket = $iopubSocket;
         $this->shellSocket = $shellSocket;
         $this->shellSoul = $shellSoul;
+        $this->zPHP = $zPHP;
     }
 
     public function call(array $header, array $content, $zmqIds = [])
@@ -103,19 +109,21 @@ final class ExecuteAction implements Action
     private function getClosure(): callable
     {
         $closure = function () {
-            \extract($this->shellSoul->getScopeVariables());
+            extract($this->shellSoul->getScopeVariables());
+
+            $this->zPHP->setHeader($this->header);
 
             try {
                 $this->shellSoul->addCode($this->code);
 
                 // evaluate the current code buffer
-                \ob_start([$this->shellSoul, 'writeStdout'], 1);
+                ob_start([$this->shellSoul, 'writeStdout'], 1);
 
-                \set_error_handler([$this->shellSoul, 'handleError']);
+                set_error_handler([$this->shellSoul, 'handleError']);
                 $_ = eval($this->shellSoul->flushCode() ?: Loop::NOOP_INPUT);
-                \restore_error_handler();
+                restore_error_handler();
 
-                \ob_end_flush();
+                ob_end_flush();
 
                 $this->shellSoul->writeReturnValue($_);
             } catch (BreakException $_e) {
@@ -137,7 +145,7 @@ final class ExecuteAction implements Action
                 $this->handleEvalException($_e);
             }
 
-            $this->shellSoul->setScopeVariables(\get_defined_vars());
+            $this->shellSoul->setScopeVariables(get_defined_vars());
         };
 
         return $closure;
@@ -145,9 +153,9 @@ final class ExecuteAction implements Action
 
     private function handleEvalException(\Exception $_e)
     {
-        \restore_error_handler();
-        if (\ob_get_level() > 0) {
-            \ob_end_clean();
+        restore_error_handler();
+        if (ob_get_level() > 0) {
+            ob_end_clean();
         }
         $this->shellSoul->writeException($_e);
     }
