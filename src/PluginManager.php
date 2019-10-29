@@ -8,7 +8,7 @@ namespace JupyterPHP;
 
 use React\ZMQ\SocketWrapper;
 
-class zPHP
+class PluginManager
 {
 	/** @var JupyterBroker */
 	private $broker;
@@ -44,7 +44,7 @@ class zPHP
 		
 		if(!class_exists($className))
 		{
-			$fileName = __DIR__."/zPHP/{$name}.php";
+			$fileName = __DIR__."/plugins/{$name}.php";
 			$classBody = "namespace {$namespace}; ?>".file_get_contents($fileName);
 			
 			eval($classBody);

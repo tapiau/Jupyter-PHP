@@ -4,20 +4,20 @@
  * Author: Zbigniew 'zibi' Jarosik <zibi@nora.pl>
  */
 
-use JupyterPHP\zPHP;
+use JupyterPHP\PluginManager;
 
 class Vega
 {
-    /** @var \Litipk\JupyterPHP\zPHP */
-    private $zPHP;
+    /** @var JupyterPHP\PluginManager */
+    private $pluginManager;
 
-    public function __construct(zPHP $zPHP)
+    public function __construct(PluginManager $pluginManager)
     {
-        $this->zPHP = $zPHP;
+        $this->pluginManager = $pluginManager;
     }
     public function __invoke($filename)
     {
-        $this->zPHP->send(
+        $this->pluginManager->send(
             'display_data',
             [
                 'data'=>[

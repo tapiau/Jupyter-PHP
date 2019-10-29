@@ -19,7 +19,7 @@ use JupyterPHP\JupyterBroker;
 use JupyterPHP\Shell;
 
 use JupyterPHP\KernelOutput;
-use JupyterPHP\zPHP;
+use JupyterPHP\PluginManager;
 use Monolog\Logger;
 use React\ZMQ\SocketWrapper;
 
@@ -43,8 +43,8 @@ final class ShellMessagesHandler
     /** @var Logger */
     private $logger;
 
-    /** @var zPHP */
-    private $zPHP;
+    /** @var PluginManager */
+    private $pluginManager;
 
 
     public function __construct(
@@ -54,9 +54,9 @@ final class ShellMessagesHandler
         Logger $logger
     ) {
         $this->shellSoul = new Shell();
-        $this->zPHP = new zPHP($broker,$iopubSocket);
+        $this->pluginManager = new PluginManager($broker,$iopubSocket);
 
-        $this->executeAction = new ExecuteAction($broker, $iopubSocket, $shellSocket, $this->shellSoul, $this->zPHP);
+        $this->executeAction = new ExecuteAction($broker, $iopubSocket, $shellSocket, $this->shellSoul, $this->pluginManager);
         $this->historyAction = new HistoryAction($broker, $shellSocket);
         $this->kernelInfoAction = new KernelInfoAction($broker, $shellSocket, $iopubSocket);
         $this->shutdownAction = new ShutdownAction($broker, $iopubSocket, $shellSocket);

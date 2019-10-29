@@ -12,7 +12,7 @@
 namespace JupyterPHP\Actions;
 
 use JupyterPHP\JupyterBroker;
-use JupyterPHP\zPHP;
+use JupyterPHP\PluginManager;
 use Psy\Exception\BreakException;
 use Psy\Exception\ThrowUpException;
 use Psy\ExecutionLoop\Loop;
@@ -45,8 +45,8 @@ final class ExecuteAction implements Action
     /** @var int */
     private $execCount = 0;
 
-    /** @var zPHP */
-    private $zPHP;
+    /** @var PluginManager */
+    private $pluginManager;
 
 
     public function __construct(
@@ -54,13 +54,13 @@ final class ExecuteAction implements Action
         SocketWrapper $iopubSocket,
         SocketWrapper $shellSocket,
         Shell $shellSoul,
-        zPHP $zPHP
+        PluginManager $pluginManager
     ) {
         $this->broker = $broker;
         $this->iopubSocket = $iopubSocket;
         $this->shellSocket = $shellSocket;
         $this->shellSoul = $shellSoul;
-        $this->zPHP = $zPHP;
+        $this->pluginManager = $pluginManager;
     }
 
     public function call(array $header, array $content, $zmqIds = [])
@@ -111,7 +111,7 @@ final class ExecuteAction implements Action
         $closure = function () {
             extract($this->shellSoul->getScopeVariables());
 
-            $this->zPHP->setHeader($this->header);
+            $this->pluginManager->setHeader($this->header);
 
             try {
                 $this->shellSoul->addCode($this->code);
